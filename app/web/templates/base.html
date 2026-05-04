@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }} | BotYo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
+  </head>
+  <body class="page page-{{ title|lower }}">
+    <div class="page-aura" aria-hidden="true"></div>
+    <div class="page-grid" aria-hidden="true"></div>
+    <div class="shell">
+      <header class="shell-header">
+        <div class="shell-brand-row">
+          <a class="shell-mark" href="/" aria-label="Retour au dashboard">BY</a>
+          <div class="shell-brand">
+            <p class="eyebrow shell-eyebrow">BotYo</p>
+            <div class="shell-heading">
+              <h1>{{ title }}</h1>
+              <p class="shell-subtitle">
+                {% if title == "Dashboard" %}
+                Pilotage live des regimes, signaux et flux whales sur une seule lecture.
+                {% elif title == "Admin" %}
+                Calibration, configuration et garde-fous operatoires du bot.
+                {% else %}
+                Journal des signaux, du lifecycle et de la performance resolue.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+        <nav class="shell-nav" aria-label="Navigation principale">
+          <a href="/" class="{% if title == 'Dashboard' %}is-active{% endif %}">Dashboard</a>
+          <a href="/admin" class="{% if title == 'Admin' %}is-active{% endif %}">Admin</a>
+          <a href="/journal" class="{% if title == 'Journal' %}is-active{% endif %}">Journal</a>
+        </nav>
+      </header>
+      <main class="shell-main">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    <script src="{{ url_for('static', path='app.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="admin-mast">
+  <article class="surface surface-hero">
+    <div class="surface-head">
+      <div>
+        <p class="eyebrow">Configuration active</p>
+        <h2>Configuration active</h2>
+      </div>
+      <span class="status-pill {% if live_activation.eligible %}status-good{% else %}status-watch{% endif %}">
+        {{ mode }}
+      </span>
+    </div>
+    <p class="surface-copy surface-copy-hero">
+      Cette vue concentre l'etat operatoire du bot, la readiness live et les commandes de maintenance courantes.
+    </p>
+    <div class="action-row">
+      <button type="button" class="action-button" data-action="/admin/recalibrate">Recalibrer</button>
+      <button type="button" class="action-button" data-action="/admin/telegram/test">Test Telegram</button>
+      <button
+        type="button"
+        class="action-button action-button-danger"
+        data-action="/admin/shutdown"
+        data-confirm="Confirmer l'arret propre du bot ?"
+      >Arret gracieux</button>
+    </div>
+    <p class="action-feedback" data-admin-feedback aria-live="polite"></p>
+    <pre class="config-dump">{{ config }}</pre>
+  </article>
+
+  <aside class="surface admin-aside">
+    <div class="surface-head surface-head-tight">
+      <div>
+        <p class="eyebrow">Runbook</p>
+        <h2>Points de controle</h2>
+      </div>
+    </div>
+    <dl class="data-pairs">
+      <div>
+        <dt>Mode courant:</dt>
+        <dd>{{ mode }}</dd>
+      </div>
+      <div>
+        <dt>Echantillons connus:</dt>
+        <dd>{{ samples.total }}</dd>
+      </div>
+      <div>
+        <dt>Derniere recalibration:</dt>
+        <dd>{{ last_recalibrated_at }}</dd>
+      </div>
+      <div>
+        <dt>Eligible live:</dt>
+        <dd>{{ "oui" if live_activation.eligible else "non" }}</dd>
+      </div>
+    </dl>
+    <p class="section-copy">Le passage en <code>live_alert</code> exige une confirmation explicite via l'API admin.</p>
+  </aside>
+</section>
+
+<section class="grid-two section-grid">
+  <article class="surface">
+    <h2>Recalibration</h2>
+    <div class="metric-ribbon">
+      <div class="metric-chip">
+        <span class="metric-chip-label">Resolved exec</span>
+        <strong>{{ performance.resolved_executed or 0 }}</strong>
+      </div>
+      <div class="metric-chip">
+        <span class="metric-chip-label">Win rate</span>
+        <strong>{{ performance.win_rate or 0 }}%</strong>
+      </div>
+      <div class="metric-chip">
+        <span class="metric-chip-label">Expectancy</span>
+        <strong>{{ performance.expectancy or 0 }}</strong>
+      </div>
+      <div class="metric-chip">
+        <span class="metric-chip-label">Non execution</span>
+        <strong>{{ performance.non_execution_rate or 0 }}%</strong>
+      </div>
+    </div>
+  </article>
+
+  <article class="surface">
+    <h2>Activation live</h2>
+    <div class="mini-metrics">
+      <div>
+        <span class="mini-metric-label">Eligible</span>
+        <strong>{{ "oui" if live_activation.eligible else "non" }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Total restant</span>
+        <strong>{{ live_activation.remaining.total }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Setup/direction restant</span>
+        <strong>{{ live_activation.remaining.setup_direction }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Actif/setup/direction restant</span>
+        <strong>{{ live_activation.remaining.asset_setup_direction }}</strong>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section class="grid-two section-grid">
+  <article class="surface">
+    <h2>Walk-forward</h2>
+    <div class="mini-metrics">
+      <div>
+        <span class="mini-metric-label">Pret</span>
+        <strong>{{ "oui" if walk_forward.ready else "non" }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Folds</span>
+        <strong>{{ walk_forward.folds or 0 }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Brier moyen</span>
+        <strong>{{ walk_forward.average_brier or 0 }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Expectancy live moyenne</span>
+        <strong>{{ walk_forward.average_live_expectancy or 0 }}</strong>
+      </div>
+    </div>
+  </article>
+
+  <article class="surface">
+    <h2>Garde-fous live</h2>
+    <div class="mini-metrics">
+      <div>
+        <span class="mini-metric-label">Counts ready</span>
+        <strong>{{ "oui" if live_requirements.counts_ready else "non" }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Gate strict</span>
+        <strong>{{ "oui" if live_requirements.eligible else "non" }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Recent calibration gap max</span>
+        <strong>{{ live_requirements.max_recent_calibration_gap or 0 }}</strong>
+      </div>
+      <div>
+        <span class="mini-metric-label">Max non execution rate</span>
+        <strong>{{ live_requirements.max_non_execution_rate or 0 }}%</strong>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section class="grid-two section-grid">
+  <article class="surface">
+    <div class="section-head">
+      <div>
+        <h2>Segments live recommandes</h2>
+        <p class="section-copy">Buckets deja proches du standard requis pour un passage manuel en live.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="compact-table">
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th>Exec</th>
+            <th>Win%</th>
+            <th>Exp</th>
+            <th>Eligible</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for segment in recommended_segments[:8] %}
+          <tr>
+            <td>{{ segment.key }}</td>
+            <td>{{ segment.resolved_executed }}</td>
+            <td>{{ segment.win_rate }}</td>
+            <td>{{ segment.expectancy }}</td>
+            <td>{{ "oui" if segment.eligible else "non" }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5">Aucun segment live recommande pour le moment.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="surface">
+    <div class="section-head">
+      <div>
+        <h2>Performance segments</h2>
+        <p class="section-copy">Buckets surveilles pour le passage manuel en live.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="compact-table">
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th>Total</th>
+            <th>Exec</th>
+            <th>Win%</th>
+            <th>Exp</th>
+            <th>Recent exp</th>
+            <th>Eligible</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for segment in segments[:8] %}
+          <tr>
+            <td>{{ segment.key }}</td>
+            <td>{{ segment.total_signals }}</td>
+            <td>{{ segment.resolved_executed }}</td>
+            <td>{{ segment.win_rate }}</td>
+            <td>{{ segment.expectancy }}</td>
+            <td>{{ segment.recent_expectancy }}</td>
+            <td>{{ "oui" if segment.eligible else "non" }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7">Aucune mesure segmentee pour le moment.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>
+{% endblock %}

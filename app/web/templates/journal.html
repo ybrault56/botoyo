@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="journal-mast">
+  <article class="surface surface-hero">
+    <div class="surface-head">
+      <div>
+        <p class="eyebrow">Journal</p>
+        <h2>Historique resolu et lecture de confluence</h2>
+      </div>
+      <span class="status-pill {% if walk_forward.ready %}status-good{% else %}status-watch{% endif %}">
+        {{ "walk-forward pret" if walk_forward.ready else "walk-forward insuffisant" }}
+      </span>
+    </div>
+    <p class="surface-copy surface-copy-hero">
+      Le journal privilegie la lecture rapide du setup, du lifecycle et du risque sans masquer le detail des scores.
+    </p>
+    <div class="metric-ribbon">
+      <div class="metric-chip">
+        <span class="metric-chip-label">Signals</span>
+        <strong>{{ metrics.total_signals }}</strong>
+      </div>
+      <div class="metric-chip">
+        <span class="metric-chip-label">Win rate</span>
+        <strong>{{ metrics.win_rate }}%</strong>
+      </div>
+      <div class="metric-chip">
+        <span class="metric-chip-label">Resolved exec</span>
+        <strong>{{ metrics.resolved_executed }}</strong>
+      </div>
+      <div class="metric-chip">
+        <span class="metric-chip-label">Expectancy</span>
+        <strong>{{ metrics.expectancy }}</strong>
+      </div>
+    </div>
+  </article>
+
+  <div class="overview-column">
+    <article class="surface">
+      <div class="surface-head surface-head-tight">
+        <div>
+          <p class="eyebrow">R moyen</p>
+          <h2>Execution</h2>
+        </div>
+      </div>
+      <div class="mini-metrics">
+        <div>
+          <span class="mini-metric-label">R moyen</span>
+          <strong>{{ metrics.avg_r_multiple }}</strong>
+        </div>
+        <div>
+          <span class="mini-metric-label">Non execution</span>
+          <strong>{{ metrics.non_execution_rate }}%</strong>
+        </div>
+        <div>
+          <span class="mini-metric-label">Resolved</span>
+          <strong>{{ metrics.resolved_signals }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="surface">
+      <div class="surface-head surface-head-tight">
+        <div>
+          <p class="eyebrow">Walk-forward</p>
+          <h2>Readiness</h2>
+        </div>
+      </div>
+      <div class="mini-metrics">
+        <div>
+          <span class="mini-metric-label">Brier</span>
+          <strong>{{ walk_forward.average_brier or 0 }}</strong>
+        </div>
+        <div>
+          <span class="mini-metric-label">Exp live</span>
+          <strong>{{ walk_forward.average_live_expectancy or 0 }}</strong>
+        </div>
+        <div>
+          <span class="mini-metric-label">Folds</span>
+          <strong>{{ walk_forward.folds or 0 }}</strong>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+{% if selected_signal %}
+<section class="surface detail-surface">
+  <div class="section-head">
+    <div>
+      <h2>Signal detail</h2>
+      <p class="section-copy">{{ selected_signal.confluence_summary }}</p>
+    </div>
+    <a class="text-link" href="/journal">Retour au journal</a>
+  </div>
+  <div class="signal-grid">
+    <div>
+      <p class="eyebrow">Signal</p>
+      <strong>{{ selected_signal.symbol }} | {{ selected_signal.setup_label }}</strong>
+      <p>{{ selected_signal.direction_label }} | {{ selected_signal.regime_label }} | score {{ selected_signal.score }}</p>
+      <p>{{ selected_signal.emitted_at_label }}</p>
+      <p class="eyebrow">Lifecycle</p>
+      <p>{{ selected_signal.lifecycle_summary }}</p>
+    </div>
+    <div>
+      <p class="eyebrow">Confluence</p>
+      <strong>{{ selected_signal.structure_summary }}</strong>
+      <div class="chip-row">
+        {% for badge in selected_signal.location_badges %}
+        <span class="chip">{{ badge }}</span>
+        {% endfor %}
+        {% for badge in selected_signal.momentum_badges %}
+        <span class="chip chip-accent">{{ badge }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div>
+      <p class="eyebrow">Risque</p>
+      <strong>{{ selected_signal.risk_summary }}</strong>
+      <div class="breakdown-row">
+        {% for row in selected_signal.score_breakdown_rows %}
+        <span class="score-pill">{{ row.label }} {{ row.value }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <p class="meta-line">Entre {{ selected_signal.entered_at_label }} | Cloture {{ selected_signal.closed_at_label }}</p>
+</section>
+{% endif %}
+
+<section class="surface">
+  <div class="section-head">
+    <div>
+      <h2>Historique</h2>
+      <p class="section-copy">Lecture rapide des setups avec structure, confirmations et score par critere.</p>
+    </div>
+  </div>
+  <div class="signal-stack">
+    {% for signal in signals %}
+    <article class="signal-card">
+      <div class="signal-topline">
+        <a class="text-link" href="/journal/{{ signal.id }}">{{ signal.id }}</a>
+        <span class="badge">{{ signal.symbol }}</span>
+        <span class="badge">{{ signal.setup_label }}</span>
+        <span class="badge direction-{{ signal.direction }}">{{ signal.direction_label }}</span>
+        <span class="badge status-{{ signal.status_class }}">{{ signal.status_label }}</span>
+      </div>
+      <p class="signal-summary">{{ signal.confluence_summary }}</p>
+      <p class="meta-line">{{ signal.lifecycle_summary }}</p>
+      <div class="signal-grid">
+        <div>
+          <p class="eyebrow">Confluence</p>
+          <strong>{{ signal.structure_summary }}</strong>
+          <div class="chip-row">
+            {% for badge in signal.location_badges %}
+            <span class="chip">{{ badge }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div>
+          <p class="eyebrow">Momentum</p>
+          <strong>{{ signal.volume_summary }}</strong>
+          <div class="chip-row">
+            {% for badge in signal.momentum_badges %}
+            <span class="chip chip-accent">{{ badge }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div>
+          <p class="eyebrow">Score detail</p>
+          <strong>{{ signal.risk_summary }}</strong>
+          <div class="breakdown-row">
+            {% for row in signal.score_breakdown_rows %}
+            <span class="score-pill">{{ row.label }} {{ row.value }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <p class="meta-line">Emis {{ signal.emitted_at_label }} | Entre {{ signal.entered_at_label }} | Cloture {{ signal.closed_at_label }}</p>
+    </article>
+    {% else %}
+    <p>Aucun signal en base.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="surface">
+  <div class="section-head">
+    <div>
+      <h2>Performance segments</h2>
+      <p class="section-copy">Buckets gagnants et perdants issus des signaux resolus et executes.</p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="compact-table">
+      <thead>
+        <tr>
+          <th>Segment</th>
+          <th>Total</th>
+          <th>Exec</th>
+          <th>Win%</th>
+          <th>Exp</th>
+          <th>Recent exp</th>
+          <th>Eligible</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for segment in segments[:10] %}
+        <tr>
+          <td>{{ segment.key }}</td>
+          <td>{{ segment.total_signals }}</td>
+          <td>{{ segment.resolved_executed }}</td>
+          <td>{{ segment.win_rate }}</td>
+          <td>{{ segment.expectancy }}</td>
+          <td>{{ segment.recent_expectancy }}</td>
+          <td>{{ "oui" if segment.eligible else "non" }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7">Aucune donnee segmentee pour le moment.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="grid-two section-grid">
+  <article class="surface">
+    <h2>Win rate</h2>
+    <canvas id="winrate-chart"></canvas>
+  </article>
+  <article class="surface">
+    <h2>Distribution R</h2>
+    <canvas id="rr-chart"></canvas>
+  </article>
+</section>
+{% endblock %}
