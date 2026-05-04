@@ -10,6 +10,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.storage.db import get_recent_signals, get_signal
+from app.web.i18n import i18n_context
 from app.web.presenters import present_signal, present_signals
 
 router = APIRouter()
@@ -26,7 +27,7 @@ async def journal_page(request: Request, page: int = Query(default=1, ge=1)) -> 
     live_activation = supervisor.live_activation_status
     context = {
         "request": request,
-        "title": "Journal",
+        **i18n_context(request, title_key="journal"),
         "signals": present_signals(items),
         "page": page,
         "metrics": _journal_metrics(signals),
@@ -50,7 +51,7 @@ async def journal_detail(request: Request, signal_id: str) -> HTMLResponse:
     live_activation = supervisor.live_activation_status
     context = {
         "request": request,
-        "title": "Journal",
+        **i18n_context(request, title_key="journal"),
         "signals": present_signals(signals),
         "page": 1,
         "metrics": _journal_metrics(signals),

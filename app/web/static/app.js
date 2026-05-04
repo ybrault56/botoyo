@@ -70,6 +70,7 @@ async function renderLineChart(canvasId, endpoint, label) {
 
 let dashboardRefreshHandle = null;
 let dashboardRefreshPending = false;
+const supportedLanguages = new Set(["fr", "en"]);
 
 function getDashboardSection() {
   return document.getElementById("dashboard-live");
@@ -192,6 +193,33 @@ function setReadyState() {
   });
 }
 
+function bootstrapLanguagePreference() {
+  const params = new URLSearchParams(window.location.search);
+  const currentLang = params.get("lang");
+
+  if (supportedLanguages.has(currentLang)) {
+    window.localStorage.setItem("botyo.lang", currentLang);
+  } else {
+    const savedLang = window.localStorage.getItem("botyo.lang");
+    const htmlLang = document.documentElement.lang || "fr";
+    if (supportedLanguages.has(savedLang) && savedLang !== htmlLang) {
+      params.set("lang", savedLang);
+      const query = params.toString();
+      window.location.replace(`${window.location.pathname}?${query}${window.location.hash}`);
+      return;
+    }
+  }
+
+  document.querySelectorAll("[data-lang-option]").forEach((link) => {
+    link.addEventListener("click", () => {
+      const selectedLang = link.dataset.langOption;
+      if (supportedLanguages.has(selectedLang)) {
+        window.localStorage.setItem("botyo.lang", selectedLang);
+      }
+    });
+  });
+}
+
 function getAdminFeedbackNode() {
   return document.querySelector("[data-admin-feedback]");
 }
@@ -251,6 +279,7 @@ function bootstrapAdminActions() {
 
 document.addEventListener("DOMContentLoaded", () => {
   setReadyState();
+  bootstrapLanguagePreference();
   renderLineChart("winrate-chart", "/api/journal/chart/winrate", "Win rate");
   renderLineChart("rr-chart", "/api/journal/chart/rr", "R/R");
   bootstrapDashboardRefresh();

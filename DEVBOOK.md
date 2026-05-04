@@ -875,6 +875,7 @@ reject_if_late_entry: true                    # prix hors zone d'entrée
 - Métriques clés : win rate, expectancy, total signaux
 - Vue de confluence par signal : structure, niveaux, momentum, volume, R/R
 - Rafraîchissement automatique depuis l'état serveur à l'intervalle configuré
+- Interface dashboard bilingue `fr` / `en`, francais par defaut, conservant la langue selectionnee dans les URLs HTMX et via preference navigateur locale
 
 ### 16.2 Admin (route `/admin`)
 

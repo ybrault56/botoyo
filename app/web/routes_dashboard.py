@@ -5,7 +5,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlencode
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -13,6 +12,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.storage.db import get_active_signals, get_recent_external_alerts, get_recent_signals
 from app.utils.json import loads
+from app.web.i18n import i18n_context, language_url, resolve_lang, translate
 from app.web.presenters import present_diagnostics, present_signals, present_whale_movements, present_whale_trend
 
 router = APIRouter()
@@ -22,12 +22,13 @@ templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "tem
 @router.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request) -> HTMLResponse:
     supervisor = request.app.state.supervisor
+    lang = resolve_lang(request)
     whale_asset = _normalize_whale_asset(request.query_params.get("whale_asset"))
     context = {
         "request": request,
-        "title": "Dashboard",
+        **i18n_context(request, title_key="dashboard"),
         "refresh_seconds": supervisor.config["web"]["dashboard_refresh_seconds"],
-        **_dashboard_context(supervisor, whale_asset=whale_asset),
+        **_dashboard_context(supervisor, whale_asset=whale_asset, lang=lang),
     }
     response = templates.TemplateResponse(request=request, name="dashboard.html", context=context)
     return _apply_no_cache(response)
@@ -36,11 +37,13 @@ async def dashboard(request: Request) -> HTMLResponse:
 @router.get("/partials/dashboard", response_class=HTMLResponse)
 async def dashboard_partial(request: Request) -> HTMLResponse:
     supervisor = request.app.state.supervisor
+    lang = resolve_lang(request)
     whale_asset = _normalize_whale_asset(request.query_params.get("whale_asset"))
     context = {
         "request": request,
+        **i18n_context(request, title_key="dashboard"),
         "refresh_seconds": supervisor.config["web"]["dashboard_refresh_seconds"],
-        **_dashboard_context(supervisor, whale_asset=whale_asset),
+        **_dashboard_context(supervisor, whale_asset=whale_asset, lang=lang),
     }
     response = templates.TemplateResponse(request=request, name="dashboard_content.html", context=context)
     return _apply_no_cache(response)
@@ -86,9 +89,9 @@ def _metrics_summary(supervisor: Any) -> dict[str, Any]:
     }
 
 
-def _dashboard_context(supervisor: Any, *, whale_asset: str) -> dict[str, Any]:
-    active_alerts = present_signals(get_active_signals(db_path=supervisor.db_path))
-    recent_alerts = present_signals(get_recent_signals(limit=10, db_path=supervisor.db_path))
+def _dashboard_context(supervisor: Any, *, whale_asset: str, lang: str) -> dict[str, Any]:
+    active_alerts = present_signals(get_active_signals(db_path=supervisor.db_path), lang=lang)
+    recent_alerts = present_signals(get_recent_signals(limit=10, db_path=supervisor.db_path), lang=lang)
     whale_threshold = float(supervisor.config["whales"]["wallets"]["strict_min_usd_trigger"])
     whale_movements = [
         row
@@ -107,18 +110,23 @@ def _dashboard_context(supervisor: Any, *, whale_asset: str) -> dict[str, Any]:
     live_activation = supervisor.live_activation_status
     return {
         "status": supervisor.status_snapshot(),
-        "diagnostics": present_diagnostics(supervisor.build_symbol_diagnostics()),
+        "diagnostics": present_diagnostics(supervisor.build_symbol_diagnostics(), lang=lang),
         "active_alerts": active_alerts,
         "recent_alerts": recent_alerts,
-        "whale_movements": present_whale_movements(visible_whale_movements, default_threshold=whale_threshold),
+        "whale_movements": present_whale_movements(
+            visible_whale_movements,
+            default_threshold=whale_threshold,
+            lang=lang,
+        ),
         "whale_trend": present_whale_trend(
             whale_movements,
             default_threshold=whale_threshold,
             selected_asset=whale_asset,
             now_ts=int(datetime.now(timezone.utc).timestamp()),
+            lang=lang,
         ),
-        "whale_filter_options": _build_whale_filter_options(whale_asset),
-        "dashboard_partial_url": _build_dashboard_partial_url(whale_asset),
+        "whale_filter_options": _build_whale_filter_options(whale_asset, lang=lang),
+        "dashboard_partial_url": _build_dashboard_partial_url(whale_asset, lang=lang),
         "regimes": supervisor.latest_regimes,
         "metrics": _metrics_summary(supervisor),
         "performance": live_activation.get("performance", {}),
@@ -146,24 +154,25 @@ def _normalize_whale_asset(value: str | None) -> str:
     return "ALL"
 
 
-def _build_dashboard_partial_url(whale_asset: str) -> str:
-    if whale_asset == "ALL":
-        return "/partials/dashboard"
-    return f"/partials/dashboard?{urlencode({'whale_asset': whale_asset})}"
+def _build_dashboard_partial_url(whale_asset: str, *, lang: str) -> str:
+    extra = {} if whale_asset == "ALL" else {"whale_asset": whale_asset}
+    return language_url("/partials/dashboard", lang, extra)
 
 
-def _build_whale_filter_options(selected: str) -> list[dict[str, str | bool]]:
-    options = [("ALL", "Toutes"), ("BTC", "BTC"), ("ETH", "ETH"), ("XRP", "XRP")]
+def _build_whale_filter_options(selected: str, *, lang: str) -> list[dict[str, str | bool]]:
+    options = [("ALL", "dashboard.all"), ("BTC", "BTC"), ("ETH", "ETH"), ("XRP", "XRP")]
     payload: list[dict[str, str | bool]] = []
-    for value, label in options:
-        query = "" if value == "ALL" else f"?{urlencode({'whale_asset': value})}"
+
+    for value, label_key in options:
+        label = translate(label_key, lang) if label_key.startswith("dashboard.") else label_key
+        extra = {} if value == "ALL" else {"whale_asset": value}
         payload.append(
             {
                 "value": value,
                 "label": label,
                 "active": value == selected,
-                "href": f"/{query}",
-                "partial_href": _build_dashboard_partial_url(value),
+                "href": language_url("/", lang, extra),
+                "partial_href": _build_dashboard_partial_url(value, lang=lang),
             }
         )
     return payload

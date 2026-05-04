@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ lang|default('fr') }}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,34 +14,34 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
   </head>
-  <body class="page page-{{ title|lower }}">
+  <body class="page page-{{ title_key|default(title)|lower }}">
     <div class="page-aura" aria-hidden="true"></div>
     <div class="page-grid" aria-hidden="true"></div>
     <div class="shell">
       <header class="shell-header">
         <div class="shell-brand-row">
-          <a class="shell-mark" href="/" aria-label="Retour au dashboard">BY</a>
+          <a class="shell-mark" href="{{ nav_urls.dashboard|default('/') }}" aria-label="{{ t('aria.home') if t is defined else 'Retour au dashboard' }}">BY</a>
           <div class="shell-brand">
             <p class="eyebrow shell-eyebrow">BotYo</p>
             <div class="shell-heading">
               <h1>{{ title }}</h1>
               <p class="shell-subtitle">
-                {% if title == "Dashboard" %}
-                Pilotage live des regimes, signaux et flux whales sur une seule lecture.
-                {% elif title == "Admin" %}
-                Calibration, configuration et garde-fous operatoires du bot.
-                {% else %}
-                Journal des signaux, du lifecycle et de la performance resolue.
-                {% endif %}
+                {{ t('subtitle.' ~ title_key) if t is defined else '' }}
               </p>
             </div>
           </div>
         </div>
-        <nav class="shell-nav" aria-label="Navigation principale">
-          <a href="/" class="{% if title == 'Dashboard' %}is-active{% endif %}">Dashboard</a>
-          <a href="/admin" class="{% if title == 'Admin' %}is-active{% endif %}">Admin</a>
-          <a href="/journal" class="{% if title == 'Journal' %}is-active{% endif %}">Journal</a>
-        </nav>
+        <div class="shell-actions">
+          <nav class="shell-nav" aria-label="{{ t('aria.main_nav') if t is defined else 'Navigation principale' }}">
+            <a href="{{ nav_urls.dashboard|default('/') }}" class="{% if title_key == 'dashboard' %}is-active{% endif %}">{{ t('nav.dashboard') if t is defined else 'Dashboard' }}</a>
+            <a href="{{ nav_urls.admin|default('/admin') }}" class="{% if title_key == 'admin' %}is-active{% endif %}">{{ t('nav.admin') if t is defined else 'Admin' }}</a>
+            <a href="{{ nav_urls.journal|default('/journal') }}" class="{% if title_key == 'journal' %}is-active{% endif %}">{{ t('nav.journal') if t is defined else 'Journal' }}</a>
+          </nav>
+          <nav class="language-switch" aria-label="{{ t('aria.language') if t is defined else 'Langue' }}">
+            <a data-lang-option="fr" href="{{ language_switch_urls.fr|default('?lang=fr') }}" class="{% if lang == 'fr' %}is-active{% endif %}">{{ t('lang.fr') if t is defined else 'FR' }}</a>
+            <a data-lang-option="en" href="{{ language_switch_urls.en|default('?lang=en') }}" class="{% if lang == 'en' %}is-active{% endif %}">{{ t('lang.en') if t is defined else 'EN' }}</a>
+          </nav>
+        </div>
       </header>
       <main class="shell-main">
         {% block content %}{% endblock %}

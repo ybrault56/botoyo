@@ -22,6 +22,7 @@ Le profil analytique operatoire courant est defini dans `DEVBOOK.md` :
 - execution de reference V1 `market_on_close` sur la bougie `15M` de confirmation pour les setups configurés comme immediats
 - dashboard auto-rafraichi depuis l'etat serveur avec panneau diagnostic des blocages du pipeline
 - dashboard avec sante des sources externes et circuit breaker `whales` visible
+- dashboard bilingue `fr` / `en`, francais par defaut, avec conservation de la langue dans les refresh HTMX
 - module `whales` capable d'emettre une meta-alerte Telegram sur un biais wallets `24h` clair (`Whale trend 24h`)
 
 `AGENTS.md` reste la source de reference operationnelle du projet.

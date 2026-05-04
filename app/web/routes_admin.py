@@ -11,6 +11,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.alerts.telegram import send_alert
 from app.supervisor import load_config, save_config
+from app.web.i18n import i18n_context
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
@@ -22,7 +23,7 @@ async def admin_page(request: Request) -> HTMLResponse:
     live_activation = supervisor.live_activation_status
     context = {
         "request": request,
-        "title": "Admin",
+        **i18n_context(request, title_key="admin"),
         "config": supervisor.config,
         "mode": supervisor.config["bot"]["environment"],
         "samples": supervisor.probability_engine.get_sample_counts(),

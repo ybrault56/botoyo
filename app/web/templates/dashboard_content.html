@@ -12,54 +12,53 @@
     <article class="surface surface-hero">
       <div class="surface-head surface-head-tight">
         <div>
-          <p class="eyebrow">Command deck</p>
-          <h2>Lecture live unifiee</h2>
+          <p class="eyebrow">{{ t('dashboard.command_deck') }}</p>
+          <h2>{{ t('dashboard.unified_live_view') }}</h2>
         </div>
         <span class="status-pill {% if status.live_activation.eligible %}status-good{% else %}status-watch{% endif %}">
-          {{ "Eligible live" if status.live_activation.eligible else "Shadow only" }}
+          {{ t('dashboard.eligible_live') if status.live_activation.eligible else t('dashboard.shadow_only') }}
         </span>
       </div>
       <p class="surface-copy surface-copy-hero">
-        Structure, calibration et flux externes sont exposes dans un meme plan de lecture pour limiter le bruit
-        et accelerer les decisions de supervision.
+        {{ t('dashboard.hero_copy') }}
       </p>
       <div class="metric-ribbon">
         <div class="metric-chip">
-          <span class="metric-chip-label">Mode</span>
+          <span class="metric-chip-label">{{ t('dashboard.mode') }}</span>
           <strong>{{ status.mode }}</strong>
         </div>
         <div class="metric-chip">
-          <span class="metric-chip-label">Signals</span>
+          <span class="metric-chip-label">{{ t('dashboard.signals') }}</span>
           <strong>{{ metrics.total_signals }}</strong>
         </div>
         <div class="metric-chip">
-          <span class="metric-chip-label">Win rate</span>
+          <span class="metric-chip-label">{{ t('dashboard.win_rate') }}</span>
           <strong>{{ metrics.win_rate }}%</strong>
         </div>
         <div class="metric-chip">
-          <span class="metric-chip-label">Expectancy</span>
+          <span class="metric-chip-label">{{ t('dashboard.expectancy') }}</span>
           <strong>{{ metrics.expectancy }}</strong>
         </div>
       </div>
       <dl class="data-pairs">
         <div>
-          <dt>Dernier rendu dashboard:</dt>
-          <dd>{{ metrics.generated_at|default("inconnu") }}</dd>
+          <dt>{{ t('dashboard.last_render') }}</dt>
+          <dd>{{ metrics.generated_at|default(t('dashboard.unknown')) }}</dd>
         </div>
         <div>
-          <dt>Derniere sync lancement:</dt>
-          <dd>{{ status.last_startup_sync_at or "jamais" }}</dd>
+          <dt>{{ t('dashboard.last_startup_sync') }}</dt>
+          <dd>{{ status.last_startup_sync_at or t('dashboard.never') }}</dd>
         </div>
         <div>
-          <dt>Derniere sync runtime:</dt>
-          <dd>{{ status.last_market_sync_at or "jamais" }}</dd>
+          <dt>{{ t('dashboard.last_runtime_sync') }}</dt>
+          <dd>{{ status.last_market_sync_at or t('dashboard.never') }}</dd>
         </div>
         <div>
-          <dt>Derniere recalibration:</dt>
-          <dd>{{ status.last_recalibrated_at or "jamais" }}</dd>
+          <dt>{{ t('dashboard.last_recalibration') }}</dt>
+          <dd>{{ status.last_recalibrated_at or t('dashboard.never') }}</dd>
         </div>
         <div>
-          <dt>Uptime:</dt>
+          <dt>{{ t('dashboard.uptime') }}</dt>
           <dd>{{ status.uptime_seconds }}s</dd>
         </div>
       </dl>
@@ -69,21 +68,21 @@
       <article class="surface">
         <div class="surface-head surface-head-tight">
           <div>
-            <p class="eyebrow">Calibration live</p>
-            <h2>Fenetre d'activation</h2>
+            <p class="eyebrow">{{ t('dashboard.live_calibration') }}</p>
+            <h2>{{ t('dashboard.activation_window') }}</h2>
           </div>
         </div>
         <div class="mini-metrics">
           <div>
-            <span class="mini-metric-label">Total restant</span>
+            <span class="mini-metric-label">{{ t('dashboard.total_remaining') }}</span>
             <strong>{{ status.live_activation.remaining.total }}</strong>
           </div>
           <div>
-            <span class="mini-metric-label">Setup/direction restant</span>
+            <span class="mini-metric-label">{{ t('dashboard.setup_direction_remaining') }}</span>
             <strong>{{ status.live_activation.remaining.setup_direction }}</strong>
           </div>
           <div>
-            <span class="mini-metric-label">Actif/setup/direction restant</span>
+            <span class="mini-metric-label">{{ t('dashboard.asset_setup_direction_remaining') }}</span>
             <strong>{{ status.live_activation.remaining.asset_setup_direction }}</strong>
           </div>
         </div>
@@ -92,8 +91,8 @@
       <article class="surface">
         <div class="surface-head surface-head-tight">
           <div>
-            <p class="eyebrow">Flux ferme</p>
-            <h2>Dernieres bougies</h2>
+            <p class="eyebrow">{{ t('dashboard.closed_feed') }}</p>
+            <h2>{{ t('dashboard.latest_candles') }}</h2>
           </div>
         </div>
         <ul class="clean-list cadence-list">
@@ -107,7 +106,7 @@
             </div>
           </li>
           {% else %}
-          <li>Aucune bougie chargee.</li>
+          <li>{{ t('dashboard.no_candles') }}</li>
           {% endfor %}
         </ul>
       </article>
@@ -115,15 +114,15 @@
       <article class="surface">
         <div class="surface-head surface-head-tight">
           <div>
-            <p class="eyebrow">Etat des sources</p>
-            <h2>Kraken et whales</h2>
+            <p class="eyebrow">{{ t('dashboard.source_state') }}</p>
+            <h2>{{ t('dashboard.kraken_whales') }}</h2>
           </div>
         </div>
         <div class="chip-row">
           {% if status.history_coverage.all_targets_met %}
-          <span class="chip chip-accent">Historique intraday complet</span>
+          <span class="chip chip-accent">{{ t('dashboard.history_complete') }}</span>
           {% else %}
-          <span class="chip chip-warning">Couverture partielle : {{ status.history_coverage.partial_targets|join(", ") }}</span>
+          <span class="chip chip-warning">{{ t('dashboard.partial_coverage', targets=status.history_coverage.partial_targets|join(", ")) }}</span>
           {% endif %}
         </div>
         <ul class="clean-list cadence-list">
@@ -137,7 +136,7 @@
             </div>
           </li>
           {% else %}
-          <li>Sources externes indisponibles.</li>
+          <li>{{ t('dashboard.external_sources_unavailable') }}</li>
           {% endfor %}
         </ul>
       </article>
@@ -148,34 +147,34 @@
     <article class="surface">
       <div class="section-head">
         <div>
-          <h2>Readiness live</h2>
-          <p class="section-copy">Garde-fous de performance, derive recente et validation walk-forward.</p>
+          <h2>{{ t('dashboard.live_readiness') }}</h2>
+          <p class="section-copy">{{ t('dashboard.live_readiness_copy') }}</p>
         </div>
       </div>
       <div class="stat-strip">
-        <span class="score-pill">Resolved exec {{ performance.resolved_executed or 0 }}</span>
-        <span class="score-pill">Recent expectancy {{ metrics.recent_expectancy or 0 }}</span>
-        <span class="score-pill">Recent win {{ metrics.recent_win_rate or 0 }}%</span>
-        <span class="score-pill">Drawdown {{ metrics.drawdown_r or 0 }}R</span>
+        <span class="score-pill">{{ t('dashboard.resolved_exec') }} {{ performance.resolved_executed or 0 }}</span>
+        <span class="score-pill">{{ t('dashboard.recent_expectancy') }} {{ metrics.recent_expectancy or 0 }}</span>
+        <span class="score-pill">{{ t('dashboard.recent_win') }} {{ metrics.recent_win_rate or 0 }}%</span>
+        <span class="score-pill">{{ t('dashboard.drawdown') }} {{ metrics.drawdown_r or 0 }}R</span>
       </div>
       <div class="metric-grid">
         <div>
-          <p class="eyebrow">Walk-forward</p>
-          <strong>{{ "pret" if walk_forward.ready else "insuffisant" }}</strong>
-          <p>Folds: {{ walk_forward.folds or 0 }}</p>
-          <p>Brier moyen: {{ walk_forward.average_brier or 0 }}</p>
+          <p class="eyebrow">{{ t('dashboard.walk_forward') }}</p>
+          <strong>{{ t('dashboard.ready') if walk_forward.ready else t('dashboard.insufficient') }}</strong>
+          <p>{{ t('dashboard.folds') }}: {{ walk_forward.folds or 0 }}</p>
+          <p>{{ t('dashboard.avg_brier') }}: {{ walk_forward.average_brier or 0 }}</p>
         </div>
         <div>
-          <p class="eyebrow">Derive</p>
+          <p class="eyebrow">{{ t('dashboard.drift') }}</p>
           <strong>{{ performance.recent_calibration_gap or 0 }}</strong>
-          <p>Expectancy recente: {{ performance.recent_expectancy or 0 }}</p>
-          <p>Win rate recent: {{ performance.recent_win_rate or 0 }}%</p>
+          <p>{{ t('dashboard.recent_expectancy_label') }}: {{ performance.recent_expectancy or 0 }}</p>
+          <p>{{ t('dashboard.recent_win_rate_label') }}: {{ performance.recent_win_rate or 0 }}%</p>
         </div>
         <div>
-          <p class="eyebrow">Gate strict</p>
-          <strong>{{ "ok" if live_requirements.eligible else "bloque" }}</strong>
-          <p>Counts ready: {{ "oui" if live_requirements.counts_ready else "non" }}</p>
-          <p>Max calibration gap: {{ live_requirements.max_recent_calibration_gap or 0 }}</p>
+          <p class="eyebrow">{{ t('dashboard.strict_gate') }}</p>
+          <strong>{{ "ok" if live_requirements.eligible else t('dashboard.blocked') }}</strong>
+          <p>{{ t('dashboard.counts_ready') }}: {{ t('dashboard.yes') if live_requirements.counts_ready else t('dashboard.no') }}</p>
+          <p>{{ t('dashboard.max_calibration_gap') }}: {{ live_requirements.max_recent_calibration_gap or 0 }}</p>
         </div>
       </div>
     </article>
@@ -183,19 +182,19 @@
     <article class="surface">
       <div class="section-head">
         <div>
-          <h2>Segments live recommandes</h2>
-          <p class="section-copy">Seulement les buckets eligibles peuvent pretendre au live.</p>
+          <h2>{{ t('dashboard.recommended_segments') }}</h2>
+          <p class="section-copy">{{ t('dashboard.recommended_segments_copy') }}</p>
         </div>
       </div>
       <div class="table-wrap">
         <table class="compact-table">
           <thead>
             <tr>
-              <th>Segment</th>
-              <th>Exec</th>
-              <th>Win%</th>
-              <th>Exp</th>
-              <th>Statut</th>
+              <th>{{ t('dashboard.segment') }}</th>
+              <th>{{ t('dashboard.exec') }}</th>
+              <th>{{ t('dashboard.win_pct') }}</th>
+              <th>{{ t('dashboard.exp') }}</th>
+              <th>{{ t('dashboard.status') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -205,11 +204,11 @@
               <td>{{ segment.resolved_executed }}</td>
               <td>{{ segment.win_rate }}</td>
               <td>{{ segment.expectancy }}</td>
-              <td>{{ "eligible" if segment.eligible else "shadow" }}</td>
+              <td>{{ t('dashboard.eligible') if segment.eligible else t('dashboard.shadow') }}</td>
             </tr>
             {% else %}
             <tr>
-              <td colspan="5">Aucun segment live recommande pour le moment.</td>
+              <td colspan="5">{{ t('dashboard.no_live_segment') }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -221,8 +220,8 @@
   <section class="surface">
     <div class="section-head">
       <div>
-        <h2>Diagnostic signal</h2>
-        <p class="section-copy">Lecture live du pipeline : biais, blocages de regime et filtres setup par actif.</p>
+        <h2>{{ t('dashboard.signal_diagnostic') }}</h2>
+        <p class="section-copy">{{ t('dashboard.signal_diagnostic_copy') }}</p>
       </div>
     </div>
     <div class="diagnostic-grid">
@@ -243,17 +242,17 @@
           {% for blocker in diagnostic.blockers %}
           <span class="chip chip-warning">{{ blocker }}</span>
           {% else %}
-          <span class="chip chip-accent">Aucun blocage de regime</span>
+          <span class="chip chip-accent">{{ t('dashboard.no_regime_blocker') }}</span>
           {% endfor %}
         </div>
         <div class="table-wrap diagnostic-table-wrap">
           <table class="compact-table">
             <thead>
               <tr>
-                <th>Setup</th>
-                <th>Sens</th>
-                <th>Etat</th>
-                <th>Lecture</th>
+                <th>{{ t('dashboard.setup') }}</th>
+                <th>{{ t('dashboard.direction') }}</th>
+                <th>{{ t('dashboard.state') }}</th>
+                <th>{{ t('dashboard.reading') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -266,7 +265,7 @@
               </tr>
               {% else %}
               <tr>
-                <td colspan="4">Aucun diagnostic setup disponible.</td>
+                <td colspan="4">{{ t('dashboard.no_setup_diagnostic') }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -274,7 +273,7 @@
         </div>
       </article>
       {% else %}
-      <p>Aucun diagnostic disponible.</p>
+      <p>{{ t('dashboard.no_diagnostic') }}</p>
       {% endfor %}
     </div>
   </section>
@@ -282,10 +281,10 @@
   <section class="surface">
     <div class="section-head">
       <div>
-        <h2>Mouvements whales</h2>
-        <p class="section-copy">Flux wallets sur 24h glissantes, avec lecture immediate du biais et du niveau de gravite.</p>
+        <h2>{{ t('dashboard.whale_movements') }}</h2>
+        <p class="section-copy">{{ t('dashboard.whale_copy') }}</p>
       </div>
-      <div class="filter-row" aria-label="Filtre crypto whales">
+      <div class="filter-row" aria-label="{{ t('dashboard.whale_filter_aria') }}">
         {% for option in whale_filter_options %}
         <a
           href="{{ option.href }}"
@@ -300,18 +299,18 @@
     </div>
     <div class="whales-shell">
       <div class="trend-strip trend-strip-hero">
-        <span class="badge {{ whale_trend.state_class }}">Tendance 24h {{ whale_trend.label }}</span>
-        <span class="chip">Filtre {{ whale_trend.selected_label }}</span>
-        <span class="chip">Pump {{ whale_trend.pump_usd_label }}</span>
-        <span class="chip">Dump {{ whale_trend.dump_usd_label }}</span>
-        <span class="chip">{{ whale_trend.movement_count }} mouvements</span>
+        <span class="badge {{ whale_trend.state_class }}">{{ t('dashboard.trend_24h') }} {{ whale_trend.label }}</span>
+        <span class="chip">{{ t('dashboard.filter') }} {{ whale_trend.selected_label }}</span>
+        <span class="chip">{{ t('dashboard.pump') }} {{ whale_trend.pump_usd_label }}</span>
+        <span class="chip">{{ t('dashboard.dump') }} {{ whale_trend.dump_usd_label }}</span>
+        <span class="chip">{{ whale_trend.movement_count }} {{ t('dashboard.movements') }}</span>
       </div>
       <p class="section-copy trend-copy">{{ whale_trend.summary }}</p>
       <div class="whale-log-meta">
-        <span class="chip">{{ whale_movements|length }} cartes visibles</span>
-        <span class="section-copy">Defilement vertical pour parcourir tout l'historique 24h sans ecraser le reste du dashboard.</span>
+        <span class="chip">{{ whale_movements|length }} {{ t('dashboard.visible_cards') }}</span>
+        <span class="section-copy">{{ t('dashboard.whale_scroll_copy') }}</span>
       </div>
-      <div class="whale-scroll-region" role="region" aria-label="Historique des mouvements whales sur vingt-quatre heures">
+      <div class="whale-scroll-region" role="region" aria-label="{{ t('dashboard.whale_region_aria') }}">
         <div class="whale-grid">
           {% for movement in whale_movements %}
           <article class="signal-card whale-card {{ movement.state_class }}">
@@ -323,14 +322,14 @@
             </div>
             <p class="signal-summary">{{ movement.wallet_label }} | {{ movement.direction_label }}</p>
             <div class="metric-line">
-              <span><strong>Mouvement</strong> {{ movement.amount_label }}</span>
-              <span><strong>USD</strong> {{ movement.usd_amount_label }}</span>
-              <span><strong>Seuil</strong> {{ movement.threshold_label }}</span>
+              <span><strong>{{ t('dashboard.movement') }}</strong> {{ movement.amount_label }}</span>
+              <span><strong>{{ t('dashboard.usd') }}</strong> {{ movement.usd_amount_label }}</span>
+              <span><strong>{{ t('dashboard.threshold') }}</strong> {{ movement.threshold_label }}</span>
             </div>
-            <p class="meta-line">Observe {{ movement.observed_at_label }} | Tx {{ movement.tx_hash_short or "-" }}</p>
+            <p class="meta-line">{{ t('dashboard.observed') }} {{ movement.observed_at_label }} | {{ t('dashboard.tx') }} {{ movement.tx_hash_short or "-" }}</p>
           </article>
           {% else %}
-          <p>Aucun mouvement whales journalise pour le moment.</p>
+          <p>{{ t('dashboard.no_whales') }}</p>
           {% endfor %}
         </div>
       </div>
@@ -339,18 +338,18 @@
 
   <section class="grid-two section-grid">
     <article class="surface">
-      <h2>Regimes</h2>
+      <h2>{{ t('dashboard.regimes') }}</h2>
       <ul class="clean-list">
         {% for symbol, regime in regimes.items() %}
         <li><strong>{{ symbol }}</strong> <span class="badge">{{ regime }}</span></li>
         {% else %}
-        <li>Aucun regime calcule pour le moment.</li>
+        <li>{{ t('dashboard.no_regime') }}</li>
         {% endfor %}
       </ul>
     </article>
 
     <article class="surface">
-      <h2>Alertes actives</h2>
+      <h2>{{ t('dashboard.active_alerts') }}</h2>
       <ul class="clean-list signal-stack">
         {% for signal in active_alerts %}
         <li class="signal-row">
@@ -371,12 +370,12 @@
             {% endfor %}
           </div>
           <div class="metric-line">
-            <span><strong>Volume</strong> {{ signal.volume_summary }}</span>
-            <span><strong>Risque</strong> {{ signal.risk_summary }}</span>
+            <span><strong>{{ t('dashboard.volume') }}</strong> {{ signal.volume_summary }}</span>
+            <span><strong>{{ t('dashboard.risk') }}</strong> {{ signal.risk_summary }}</span>
           </div>
         </li>
         {% else %}
-        <li>Aucune alerte active.</li>
+        <li>{{ t('dashboard.no_active_alert') }}</li>
         {% endfor %}
       </ul>
     </article>
@@ -385,8 +384,8 @@
   <section class="surface">
     <div class="section-head">
       <div>
-        <h2>Alertes recentes</h2>
-        <p class="section-copy">Confluence, momentum, volume et score de risque pour les derniers signaux.</p>
+        <h2>{{ t('dashboard.recent_alerts') }}</h2>
+        <p class="section-copy">{{ t('dashboard.recent_alerts_copy') }}</p>
       </div>
     </div>
     <div class="signal-stack">
@@ -402,7 +401,7 @@
         <p class="meta-line">{{ signal.lifecycle_summary }}</p>
         <div class="signal-grid">
           <div>
-            <p class="eyebrow">Structure</p>
+            <p class="eyebrow">{{ t('dashboard.structure') }}</p>
             <strong>{{ signal.structure_summary }}</strong>
             <div class="chip-row">
               {% for badge in signal.location_badges %}
@@ -411,7 +410,7 @@
             </div>
           </div>
           <div>
-            <p class="eyebrow">Momentum</p>
+            <p class="eyebrow">{{ t('dashboard.momentum') }}</p>
             <strong>{{ signal.volume_summary }}</strong>
             <div class="chip-row">
               {% for badge in signal.momentum_badges %}
@@ -420,7 +419,7 @@
             </div>
           </div>
           <div>
-            <p class="eyebrow">Risque</p>
+            <p class="eyebrow">{{ t('dashboard.risk') }}</p>
             <strong>{{ signal.risk_summary }}</strong>
             <div class="breakdown-row">
               {% for row in signal.score_breakdown_rows[:4] %}
@@ -429,10 +428,10 @@
             </div>
           </div>
         </div>
-        <p class="meta-line">Emis {{ signal.emitted_at_label }} | Entre {{ signal.entered_at_label }} | Cloture {{ signal.closed_at_label }}</p>
+        <p class="meta-line">{{ t('dashboard.issued') }} {{ signal.emitted_at_label }} | {{ t('dashboard.entered') }} {{ signal.entered_at_label }} | {{ t('dashboard.closed') }} {{ signal.closed_at_label }}</p>
       </article>
       {% else %}
-      <p>Aucun signal journalise.</p>
+      <p>{{ t('dashboard.no_signal') }}</p>
       {% endfor %}
     </div>
   </section>

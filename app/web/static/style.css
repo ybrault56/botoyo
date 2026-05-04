@@ -76,6 +76,14 @@ h2 {
   gap: 0.5rem;
 }
 
+.shell-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .shell-nav a {
   display: inline-flex;
   align-items: center;
@@ -91,6 +99,38 @@ h2 {
 .shell-nav a.is-active {
   border-color: rgba(255, 255, 255, 0.24);
   background: rgba(219, 234, 254, 0.14);
+  color: #ffffff;
+}
+
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.language-switch a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  color: rgba(248, 251, 255, 0.72);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.language-switch a.is-active {
+  background: rgba(219, 234, 254, 0.16);
+  color: #ffffff;
+}
+
+.language-switch a:hover,
+.language-switch a:focus-visible {
   color: #ffffff;
 }
 
@@ -498,6 +538,10 @@ canvas {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .shell-actions {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 720px) {
@@ -708,6 +752,20 @@ body.is-ready .signal-row {
 .shell-nav a.is-active {
   background: rgba(200, 107, 60, 0.18);
   border-color: rgba(255, 240, 226, 0.22);
+}
+
+.language-switch {
+  border-color: rgba(246, 242, 234, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.language-switch a {
+  color: rgba(246, 242, 234, 0.66);
+}
+
+.language-switch a.is-active {
+  background: rgba(200, 107, 60, 0.18);
+  color: #fff7f0;
 }
 
 .shell-main {

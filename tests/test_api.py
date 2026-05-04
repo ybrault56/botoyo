@@ -160,6 +160,29 @@ def test_get_root_returns_200() -> None:
     assert response.text.count('id="dashboard-live"') == 1
 
 
+def test_get_root_can_render_english_dashboard() -> None:
+    db_path = _temp_db_path()
+    _seed_signal(db_path)
+    _seed_whale_movements(db_path)
+    with TestClient(create_app(str(_temp_config_path()), start_supervisor=False)) as client:
+        client.app.state.supervisor.db_path = db_path
+        response = client.get("/?lang=en")
+
+    assert response.status_code == 200
+    assert '<html lang="en">' in response.text
+    assert "Unified live view" in response.text
+    assert "Live readiness" in response.text
+    assert "Recommended live segments" in response.text
+    assert "Whale movements" in response.text
+    assert "All" in response.text
+    assert "24h trend PUMP" in response.text
+    assert "Threshold exceeded" in response.text
+    assert "Buyer bias over rolling 24h" in response.text
+    assert "Seuil depasse" not in response.text
+    assert 'data-lang-option="en"' in response.text
+    assert 'data-partial-url="/partials/dashboard?lang=en"' in response.text
+
+
 def test_get_dashboard_partial_returns_200() -> None:
     db_path = _temp_db_path()
     _seed_signal(db_path)
@@ -190,6 +213,27 @@ def test_get_dashboard_partial_filters_whales_by_crypto() -> None:
     assert 'data-partial-url="/partials/dashboard?whale_asset=ETH"' in response.text
     assert "Lido ETH reserve" in response.text
     assert "Tendance 24h DUMP" in response.text
+    assert "Binance BTC cold wallet" not in response.text
+    assert "Ripple XRP treasury" not in response.text
+
+
+def test_get_dashboard_partial_keeps_english_language_on_whale_filter() -> None:
+    db_path = _temp_db_path()
+    _seed_signal(db_path)
+    _seed_whale_movements(db_path)
+    with TestClient(create_app(str(_temp_config_path()), start_supervisor=False)) as client:
+        client.app.state.supervisor.db_path = db_path
+        response = client.get("/partials/dashboard?whale_asset=ETH&lang=en")
+
+    assert response.status_code == 200
+    assert 'data-partial-url="/partials/dashboard?whale_asset=ETH&amp;lang=en"' in response.text
+    assert 'hx-get="/partials/dashboard?whale_asset=BTC&amp;lang=en"' in response.text
+    assert "Lido ETH reserve" in response.text
+    assert "24h trend DUMP" in response.text
+    assert "Filter ETH" in response.text
+    assert "Near threshold" in response.text
+    assert "Inbound" in response.text
+    assert "Seller bias over rolling 24h" in response.text
     assert "Binance BTC cold wallet" not in response.text
     assert "Ripple XRP treasury" not in response.text
 
