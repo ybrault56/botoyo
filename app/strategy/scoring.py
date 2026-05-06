@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.utils.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def score_setup(setup: dict[str, Any], indicators_by_tf: dict[str, dict[str, Any]], config: dict[str, Any]) -> dict[str, Any]:
     """Score a detected setup and derive risk targets."""
@@ -51,6 +55,12 @@ def score_setup(setup: dict[str, Any], indicators_by_tf: dict[str, dict[str, Any
         forced_reject = True
     if breakdown["stop_quality"] <= 0.0:
         forced_reject = True
+        clear_stop = bool(features.get("clear_stop", False))
+        distance_ratio = stop_distance / atr if atr > 0.0 else 0.0
+        logger.info(
+            f"[SCORING] forced_reject: stop_quality=0.0 | ratio={distance_ratio:.3f} | "
+            f"stop_dist={stop_distance:.2f} | atr={atr:.2f} | clear_stop={clear_stop}"
+        )
 
     score = round(sum(breakdown.values()), 2)
     decision = "reject"
@@ -180,9 +190,9 @@ def _stop_quality_score(clear_stop: bool, stop_distance: float, atr: float, weig
     if not clear_stop or atr <= 0.0:
         return 0.0
     distance_ratio = stop_distance / atr
-    if 0.8 <= distance_ratio <= 2.2:
+    if 0.8 <= distance_ratio <= 2.5:
         return weight
-    if 0.5 <= distance_ratio < 0.8 or 2.2 < distance_ratio <= 2.5:
+    if 0.5 <= distance_ratio < 0.8 or 2.5 < distance_ratio <= 3.0:
         return 3.0
     return 0.0
 
